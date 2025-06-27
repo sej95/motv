@@ -21,6 +21,8 @@ import { Suspense } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
 
+const ENABLE_BLOCKAD = process.env.NEXT_PUBLIC_ENABLE_BLOCKAD === 'true';
+
 import 'vidstack/styles/defaults.css';
 import '@vidstack/react/player/styles/default/theme.css';
 import '@vidstack/react/player/styles/default/layouts/video.css';
@@ -135,6 +137,9 @@ function PlayPageClient() {
 
   // 当播放器因重建而触发一次额外的 sourcechange 时，用于忽略那一次
   const ignoreSourceChangeRef = useRef(false);
+
+  // 上次使用的音量，默认 0.7
+  const lastVolumeRef = useRef<number>(0.7);
 
   // 同步最新值到 refs
   useEffect(() => {
@@ -328,6 +333,16 @@ function PlayPageClient() {
         console.warn('恢复播放进度失败:', err);
       }
       resumeTimeRef.current = null;
+    }
+
+    if (playerRef.current) {
+      setTimeout(() => {
+        try {
+          playerRef.current.volume = lastVolumeRef.current;
+        } catch (_) {
+          // 忽略异常
+        }
+      }, 0);
     }
   };
 
@@ -666,9 +681,13 @@ function PlayPageClient() {
 
     // 上箭头 = 音量+
     if (e.key === 'ArrowUp') {
-      if (player.volume < 1) {
+      const currentVolume = player.volume;
+      if (currentVolume < 1) {
         player.volume += 0.1;
-        displayShortcutHint(`音量 ${Math.round(player.volume * 100)}`, 'up');
+        displayShortcutHint(
+          `音量 ${Math.round((currentVolume + 0.1) * 100)}`,
+          'up'
+        );
       } else {
         displayShortcutHint('音量 100', 'up');
       }
@@ -677,9 +696,13 @@ function PlayPageClient() {
 
     // 下箭头 = 音量-
     if (e.key === 'ArrowDown') {
-      if (player.volume > 0) {
+      const currentVolume = player.volume;
+      if (currentVolume > 0) {
         player.volume -= 0.1;
-        displayShortcutHint(`音量 ${Math.round(player.volume * 100)}`, 'down');
+        displayShortcutHint(
+          `音量 ${Math.round((currentVolume - 0.1) * 100)}`,
+          'down'
+        );
       } else {
         displayShortcutHint('音量 0', 'down');
       }
@@ -1026,30 +1049,36 @@ function PlayPageClient() {
 
   /* -------------------- 设置 meta theme-color 为纯黑 -------------------- */
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    const originalThemeColorTags = Array.from(
+      document.querySelectorAll('meta[name="theme-color"]')
+    );
 
-    // 查找或创建 meta[name="theme-color"]
-    let metaTag = document.querySelector(
-      'meta[name="theme-color"]'
-    ) as HTMLMetaElement | null;
+    // 移除已有的 theme-color 标签
+    originalThemeColorTags.forEach((tag) => tag.remove());
 
-    if (!metaTag) {
-      metaTag = document.createElement('meta');
-      metaTag.setAttribute('name', 'theme-color');
-      document.head.appendChild(metaTag);
-    }
+    // 添加播放页专用的 theme-color 标签
+    const playerThemeColorTag = document.createElement('meta');
+    playerThemeColorTag.name = 'theme-color';
+    playerThemeColorTag.content = '#000000';
+    document.head.appendChild(playerThemeColorTag);
 
-    // 记录原始颜色，并设置为纯黑
-    metaTag.setAttribute('content', '#000000');
-
-    // 卸载时恢复
+    // 组件卸载时恢复原有的 theme-color 标签
     return () => {
-      metaTag?.setAttribute('content', '#e6f3fb');
+      playerThemeColorTag.remove();
+      originalThemeColorTags.forEach((tag) => document.head.appendChild(tag));
     };
   }, []);
 
   // Safari(WebKit) 专用：用于强制重新挂载 <MediaPlayer>，实现"销毁并重建"效果
   const [playerReloadKey, setPlayerReloadKey] = useState(0);
+
+  // 实时记录音量变化
+  const handleVolumeChange = () => {
+    const v = playerRef.current?.volume;
+    if (typeof v === 'number' && !Number.isNaN(v)) {
+      lastVolumeRef.current = v;
+    }
+  };
 
   if (loading) {
     return (
@@ -1071,10 +1100,18 @@ function PlayPageClient() {
           </div>
           <div className='text-base mb-6'>{error}</div>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => {
+              if (videoTitle) {
+                window.location.href = `/aggregate?q=${encodeURIComponent(
+                  videoTitle
+                )}${videoYear ? `&year=${encodeURIComponent(videoYear)}` : ''}`;
+              } else {
+                window.location.href = '/';
+              }
+            }}
             className='px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors'
           >
-            返回
+            {videoTitle ? '返回选源' : '返回首页'}
           </button>
         </div>
       </div>
@@ -1087,10 +1124,19 @@ function PlayPageClient() {
         <div className='text-white text-center'>
           <div className='text-xl font-semibold mb-4'>未找到视频</div>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => {
+              // 返回选源页
+              if (videoTitle) {
+                window.location.href = `/aggregate?q=${encodeURIComponent(
+                  videoTitle
+                )}${videoYear ? `&year=${encodeURIComponent(videoYear)}` : ''}`;
+              } else {
+                window.location.href = '/';
+              }
+            }}
             className='px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors'
           >
-            返回
+            {videoTitle ? '返回选源' : '返回首页'}
           </button>
         </div>
       </div>
@@ -1190,8 +1236,76 @@ function PlayPageClient() {
     );
   };
 
+  function filterAdsFromM3U8(m3u8Content: string): string {
+    if (!m3u8Content) return '';
+
+    // 按行分割M3U8内容
+    const lines = m3u8Content.split('\n');
+    const filteredLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // 只过滤#EXT-X-DISCONTINUITY标识
+      if (!line.includes('#EXT-X-DISCONTINUITY')) {
+        filteredLines.push(line);
+      }
+    }
+
+    return filteredLines.join('\n');
+  }
+
+  class CustomHlsJsLoader extends Hls.DefaultConfig.loader {
+    constructor(config: any) {
+      super(config);
+      const load = this.load.bind(this);
+      this.load = function (context, config, callbacks) {
+        // 拦截manifest和level请求
+        if (
+          (context as any).type === 'manifest' ||
+          (context as any).type === 'level'
+        ) {
+          const onSuccess = callbacks.onSuccess;
+          callbacks.onSuccess = function (response, stats, context) {
+            // 如果是m3u8文件，处理内容以移除广告分段
+            if (response.data && typeof response.data === 'string') {
+              // 过滤掉广告段 - 实现更精确的广告过滤逻辑
+              response.data = filterAdsFromM3U8(response.data);
+            }
+            return onSuccess(response, stats, context, null);
+          };
+        }
+        // 执行原始load方法
+        load(context, config, callbacks);
+      };
+    }
+  }
   const onProviderChange = (provider: MediaProviderAdapter | null) => {
     class extendedHls extends Hls {
+      constructor(config: any) {
+        // 调用父类构造函数
+        // @ts-ignore
+        super(config);
+
+        // 监听 Hls 错误事件，捕获 bufferStalledError 并尝试跳过
+        this.on(Hls.Events.ERROR, (_evt: any, data: any) => {
+          if (
+            data?.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR ||
+            data?.details === Hls.ErrorDetails.BUFFER_SEEK_OVER_HOLE
+          ) {
+            try {
+              const media = (this as any).media as HTMLMediaElement | undefined;
+              if (media && !media.seeking) {
+                // 前跳 1 秒，跳过当前卡顿的分片
+                media.currentTime = media.currentTime + 1;
+              }
+            } catch (err) {
+              console.warn('尝试跳过卡顿分片失败:', err);
+            }
+          }
+        });
+      }
+
       attachMedia(media: HTMLMediaElement): void {
         super.attachMedia(media);
 
@@ -1201,6 +1315,17 @@ function PlayPageClient() {
     }
     if (isHLSProvider(provider)) {
       provider.library = extendedHls;
+      provider.config = {
+        debug: false, // 关闭日志
+        enableWorker: true, // WebWorker 解码，降低主线程压力
+        lowLatencyMode: true, // 开启低延迟 LL-HLS
+        /* 缓冲/内存相关 */
+        maxBufferLength: 30, // 前向缓冲最大 30s，过大容易导致高延迟
+        backBufferLength: 30, // 仅保留 30s 已播放内容，避免内存占用
+        maxBufferSize: 60 * 1000 * 1000, // 约 60MB，超出后触发清理
+        /* 自定义loader */
+        loader: ENABLE_BLOCKAD ? CustomHlsJsLoader : Hls.DefaultConfig.loader,
+      };
     }
   };
 
@@ -1225,6 +1350,7 @@ function PlayPageClient() {
 
       // 第二次（用户真正切换源）开始重建播放器
       // 设置标志，下一次由重建带来的 sourcechange 忽略
+      console.log('destory player and rebuild');
       ignoreSourceChangeRef.current = true;
       setPlayerReloadKey((k) => k + 1);
     }
@@ -1297,6 +1423,7 @@ function PlayPageClient() {
         poster={videoCover}
         playsInline
         autoPlay
+        volume={0.7}
         crossOrigin='anonymous'
         controlsDelay={3000}
         key={playerReloadKey}
@@ -1307,6 +1434,7 @@ function PlayPageClient() {
         onError={handlePlayerError}
         onProviderChange={onProviderChange}
         onSourceChange={onSourceChange}
+        onVolumeChange={handleVolumeChange}
       >
         <MediaProvider />
         <PlayerUITopbar
