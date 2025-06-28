@@ -8,8 +8,9 @@ import {
   isHLSProvider,
   MediaPlayer,
   MediaProvider,
+  Menu,
 } from '@vidstack/react';
-import { AirPlayIcon } from '@vidstack/react/icons';
+import { AirPlayIcon, SettingsIcon } from '@vidstack/react/icons';
 import {
   defaultLayoutIcons,
   DefaultVideoLayout,
@@ -20,8 +21,6 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import React from 'react';
-
-const ENABLE_BLOCKAD = process.env.NEXT_PUBLIC_ENABLE_BLOCKAD === 'true';
 
 import 'vidstack/styles/defaults.css';
 import '@vidstack/react/player/styles/default/theme.css';
@@ -115,13 +114,6 @@ function PlayPageClient() {
   );
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 长按三倍速相关状态
-  const [isLongPressing, setIsLongPressing] = useState(false);
-  const [showSpeedTip, setShowSpeedTip] = useState(false);
-  const longPressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const originalPlaybackRateRef = useRef<number>(1);
-  const speedTipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   // 用于记录是否需要在播放器 ready 后跳转到指定进度
   const resumeTimeRef = useRef<number | null>(null);
 
@@ -140,6 +132,15 @@ function PlayPageClient() {
 
   // 上次使用的音量，默认 0.7
   const lastVolumeRef = useRef<number>(0.7);
+
+  // 新增：去广告开关（从 localStorage 继承，默认取环境变量）
+  const [blockAdEnabled, _setBlockAdEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const v = localStorage.getItem('enable_blockad');
+      if (v !== null) return v === 'true';
+    }
+    return process.env.NEXT_PUBLIC_ENABLE_BLOCKAD === 'true';
+  });
 
   // 同步最新值到 refs
   useEffect(() => {
@@ -402,12 +403,6 @@ function PlayPageClient() {
       }
       if (saveIntervalRef.current) {
         clearInterval(saveIntervalRef.current);
-      }
-      if (longPressTimeoutRef.current) {
-        clearTimeout(longPressTimeoutRef.current);
-      }
-      if (speedTipTimeoutRef.current) {
-        clearTimeout(speedTipTimeoutRef.current);
       }
     };
   }, []);
@@ -950,103 +945,6 @@ function PlayPageClient() {
     };
   }, []);
 
-  // 长按三倍速处理函数
-  const handleTouchStart = (e: TouchEvent) => {
-    // 防止在控制栏区域触发
-    const target = e.target as HTMLElement;
-    if (
-      target.closest('.vds-controls') ||
-      target.closest('.vds-context-menu') ||
-      target.closest('.vds-lazy-gesture')
-    ) {
-      return;
-    }
-
-    // 仅在播放时触发
-    if (!playerRef.current?.playing) {
-      return;
-    }
-
-    // 清除之前的定时器
-    if (longPressTimeoutRef.current) {
-      clearTimeout(longPressTimeoutRef.current);
-    }
-
-    // 设置长按检测定时器（500ms）
-    longPressTimeoutRef.current = setTimeout(() => {
-      if (playerRef.current) {
-        // 保存原始播放速度
-        originalPlaybackRateRef.current = playerRef.current.playbackRate;
-
-        // 设置三倍速
-        playerRef.current.playbackRate = 3;
-
-        // 更新状态
-        setIsLongPressing(true);
-        setShowSpeedTip(true);
-
-        // 触发震动反馈（如果支持）
-        if (navigator.vibrate) {
-          navigator.vibrate(50);
-        }
-
-        // 3秒后自动隐藏提示
-        if (speedTipTimeoutRef.current) {
-          clearTimeout(speedTipTimeoutRef.current);
-        }
-        speedTipTimeoutRef.current = setTimeout(() => {
-          setShowSpeedTip(false);
-        }, 3000);
-      }
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
-    // 清除长按检测定时器
-    if (longPressTimeoutRef.current) {
-      clearTimeout(longPressTimeoutRef.current);
-      longPressTimeoutRef.current = null;
-    }
-
-    // 如果正在长按，恢复原始播放速度
-    if (isLongPressing && playerRef.current) {
-      playerRef.current.playbackRate = originalPlaybackRateRef.current;
-      setIsLongPressing(false);
-      setShowSpeedTip(false);
-
-      // 清除提示定时器
-      if (speedTipTimeoutRef.current) {
-        clearTimeout(speedTipTimeoutRef.current);
-        speedTipTimeoutRef.current = null;
-      }
-    }
-  };
-
-  // 添加触摸事件监听器
-  useEffect(() => {
-    const playerEl = playerRef.current?.el;
-    if (!playerEl) return;
-
-    const disableContextMenu = (e: Event) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    playerEl.addEventListener('touchstart', handleTouchStart, {
-      passive: true,
-    });
-    playerEl.addEventListener('touchend', handleTouchEnd, { passive: true });
-    playerEl.addEventListener('touchcancel', handleTouchEnd, { passive: true });
-    playerEl.addEventListener('contextmenu', disableContextMenu);
-
-    return () => {
-      playerEl.removeEventListener('touchstart', handleTouchStart);
-      playerEl.removeEventListener('touchend', handleTouchEnd);
-      playerEl.removeEventListener('touchcancel', handleTouchEnd);
-      playerEl.removeEventListener('contextmenu', disableContextMenu);
-    };
-  }, [playerRef.current, isLongPressing]);
-
   /* -------------------- 设置 meta theme-color 为纯黑 -------------------- */
   useEffect(() => {
     const originalThemeColorTags = Array.from(
@@ -1324,7 +1222,7 @@ function PlayPageClient() {
         backBufferLength: 30, // 仅保留 30s 已播放内容，避免内存占用
         maxBufferSize: 60 * 1000 * 1000, // 约 60MB，超出后触发清理
         /* 自定义loader */
-        loader: ENABLE_BLOCKAD ? CustomHlsJsLoader : Hls.DefaultConfig.loader,
+        loader: blockAdEnabled ? CustomHlsJsLoader : Hls.DefaultConfig.loader,
       };
     }
   };
@@ -1453,6 +1351,7 @@ function PlayPageClient() {
             googleCastButton: null,
             pipButton: null,
             settingsMenu: null,
+            captionButton: null,
             muteButton: null, // 隐藏静音按钮
             volumeSlider: null, // 隐藏音量条
             airPlayButton: null, // 隐藏默认 AirPlay 按钮
@@ -1494,6 +1393,39 @@ function PlayPageClient() {
                 <AirPlayButton className='vds-button'>
                   <AirPlayIcon className='vds-icon' />
                 </AirPlayButton>
+                {/* 设置按钮 */}
+                <Menu.Root className='vds-menu'>
+                  <Menu.Button
+                    className='vds-menu-button vds-button'
+                    aria-label='Settings'
+                  >
+                    <SettingsIcon className='vds-rotate-icon vds-icon' />
+                  </Menu.Button>
+                  <Menu.Content
+                    className='vds-menu-items'
+                    placement='top end'
+                    offset={0}
+                  >
+                    <button
+                      className='text-white'
+                      onClick={() => {
+                        const newVal = !blockAdEnabled;
+                        try {
+                          saveCurrentPlayProgress();
+                          localStorage.setItem(
+                            'enable_blockad',
+                            String(newVal)
+                          );
+                        } catch (_) {
+                          // ignore
+                        }
+                        window.location.reload();
+                      }}
+                    >
+                      {blockAdEnabled ? '关闭去广告' : '开启去广告'}
+                    </button>
+                  </Menu.Content>
+                </Menu.Root>
               </>
             ),
           }}
@@ -1794,30 +1726,6 @@ function PlayPageClient() {
               )}
             </svg>
             <span className='text-white font-medium'>{shortcutText}</span>
-          </div>
-        </div>
-
-        {/* 三倍速提示 */}
-        <div
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-opacity duration-300 ${
-            showSpeedTip ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
-        >
-          <div className='bg-black/60 backdrop-blur-sm rounded-lg p-4 flex items-center space-x-3'>
-            <svg
-              className='w-6 h-6 text-white animate-pulse'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth='2'
-                d='M13 10V3L4 14h7v7l9-11h-7z'
-              />
-            </svg>
-            <span className='text-white font-bold text-lg'>3x 倍速</span>
           </div>
         </div>
       </MediaPlayer>
