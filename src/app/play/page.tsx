@@ -8,9 +8,8 @@ import {
   isHLSProvider,
   MediaPlayer,
   MediaProvider,
-  Menu,
 } from '@vidstack/react';
-import { AirPlayIcon, SettingsIcon } from '@vidstack/react/icons';
+import { AirPlayIcon } from '@vidstack/react/icons';
 import {
   defaultLayoutIcons,
   DefaultVideoLayout,
@@ -83,6 +82,7 @@ function PlayPageClient() {
   const [showShortcutHint, setShowShortcutHint] = useState(false);
   const [shortcutText, setShortcutText] = useState('');
   const [shortcutDirection, setShortcutDirection] = useState('');
+  const [reverseEpisodeOrder, setReverseEpisodeOrder] = useState(false);
   const shortcutHintTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 换源相关状态
@@ -1393,39 +1393,22 @@ function PlayPageClient() {
                 <AirPlayButton className='vds-button'>
                   <AirPlayIcon className='vds-icon' />
                 </AirPlayButton>
-                {/* 设置按钮 */}
-                <Menu.Root className='vds-menu'>
-                  <Menu.Button
-                    className='vds-menu-button vds-button'
-                    aria-label='Settings'
-                  >
-                    <SettingsIcon className='vds-rotate-icon vds-icon' />
-                  </Menu.Button>
-                  <Menu.Content
-                    className='vds-menu-items'
-                    placement='top end'
-                    offset={0}
-                  >
-                    <button
-                      className='text-white'
-                      onClick={() => {
-                        const newVal = !blockAdEnabled;
-                        try {
-                          saveCurrentPlayProgress();
-                          localStorage.setItem(
-                            'enable_blockad',
-                            String(newVal)
-                          );
-                        } catch (_) {
-                          // ignore
-                        }
-                        window.location.reload();
-                      }}
-                    >
-                      {blockAdEnabled ? '关闭去广告' : '开启去广告'}
-                    </button>
-                  </Menu.Content>
-                </Menu.Root>
+                <button
+                  className='vds-button'
+                  aria-label={blockAdEnabled ? '关闭去广告' : '开启去广告'}
+                  onClick={() => {
+                    const newVal = !blockAdEnabled;
+                    try {
+                      saveCurrentPlayProgress();
+                      localStorage.setItem('enable_blockad', String(newVal));
+                    } catch (_) {
+                      // ignore
+                    }
+                    window.location.reload();
+                  }}
+                >
+                  <AdBlockIcon enabled={blockAdEnabled} />
+                </button>
               </>
             ),
           }}
@@ -1453,7 +1436,22 @@ function PlayPageClient() {
             >
               <div className='p-6 h-full flex flex-col'>
                 <div className='flex items-center justify-between mb-6'>
-                  <h3 className='text-white text-xl font-semibold'>选集列表</h3>
+                  <div className='flex items-center gap-4'>
+                    <h3 className='text-white text-xl font-semibold'>
+                      选集列表
+                    </h3>
+                    {/* 倒序小字 */}
+                    <span
+                      onClick={() => setReverseEpisodeOrder((prev) => !prev)}
+                      className={`text-sm cursor-pointer select-none transition-colors ${
+                        reverseEpisodeOrder
+                          ? 'text-green-500'
+                          : 'text-gray-400 hover:text-gray-500'
+                      }`}
+                    >
+                      倒序
+                    </span>
+                  </div>
                   <button
                     onClick={() => {
                       setShowEpisodePanel(false);
@@ -1483,7 +1481,13 @@ function PlayPageClient() {
 
                 <div className='flex-1 overflow-y-auto'>
                   <div className='grid grid-cols-4 gap-3'>
-                    {Array.from({ length: totalEpisodes }, (_, idx) => (
+                    {(reverseEpisodeOrder
+                      ? Array.from(
+                          { length: totalEpisodes },
+                          (_, i) => i
+                        ).reverse()
+                      : Array.from({ length: totalEpisodes }, (_, i) => i)
+                    ).map((idx) => (
                       <button
                         key={idx}
                         onClick={() => handleEpisodeChange(idx)}
@@ -1786,6 +1790,41 @@ const FavoriteIcon = ({ filled }: { filled: boolean }) => {
     );
   }
   return <Heart className='h-5 w-5 stroke-[2] text-gray-300' />;
+};
+
+// 新增：去广告图标组件
+const AdBlockIcon = ({ enabled }: { enabled: boolean }) => {
+  const color = enabled ? '#22c55e' : '#ffffff'; // Tailwind green-500 or white
+  return (
+    <svg
+      className='h-6 w-6 vds-icon' // 略微放大尺寸
+      viewBox='0 0 32 32'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      {/* "AD" 文字，居中显示 */}
+      <text
+        x='50%'
+        y='50%'
+        fontSize='20'
+        fontWeight='bold'
+        textAnchor='middle'
+        dominantBaseline='middle'
+        fill={color}
+      >
+        AD
+      </text>
+      {/* 斜线 */}
+      <line
+        x1='4'
+        y1='4'
+        x2='28'
+        y2='28'
+        stroke={color}
+        strokeWidth='4'
+        strokeLinecap='round'
+      />
+    </svg>
+  );
 };
 
 export default function PlayPage() {
