@@ -34,23 +34,13 @@ import {
   toggleFavorite,
 } from '@/lib/db.client';
 import { type VideoDetail, fetchVideoDetail } from '@/lib/fetchVideoDetail';
+import { SearchResult } from '@/lib/types';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
 declare global {
   interface HTMLVideoElement {
     hls?: any;
   }
-}
-
-// 搜索结果类型
-interface SearchResult {
-  id: string;
-  title: string;
-  poster: string;
-  episodes: string[];
-  source: string;
-  source_name: string;
-  year: string;
 }
 
 function PlayPageClient() {
@@ -1049,7 +1039,6 @@ function PlayPageClient() {
     sourceName,
     onToggleFavorite,
     onOpenSourcePanel,
-    isFullscreen,
   }: {
     videoTitle: string;
     favorited: boolean;
@@ -1058,7 +1047,6 @@ function PlayPageClient() {
     sourceName: string;
     onToggleFavorite: () => void;
     onOpenSourcePanel: () => void;
-    isFullscreen: boolean;
   }) => {
     return (
       <div
@@ -1067,30 +1055,30 @@ function PlayPageClient() {
       >
         <div className='bg-black/60 backdrop-blur-sm px-0 sm:px-6 py-4 relative flex items-center sm:justify-center'>
           {/* 返回按钮 */}
-          {!isFullscreen && (
-            <button
-              onClick={() => {
-                if (playerRef.current?.fullscreen) {
-                  playerRef.current?.exitFullscreen();
-                }
-                window.history.back();
-              }}
-              className='absolute left-0 sm:left-6 text-white hover:text-gray-300 transition-colors p-2'
+          <button
+            onClick={() => {
+              // 如果当下是全屏状态，先退出全屏，而不是直接后退
+              if (isFullscreen) {
+                playerRef.current?.exitFullscreen();
+                return;
+              }
+              window.history.back();
+            }}
+            className='absolute left-0 sm:left-6 text-white hover:text-gray-300 transition-colors p-2'
+          >
+            <svg
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
             >
-              <svg
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
-                <path
-                  d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'
-                  fill='currentColor'
-                />
-              </svg>
-            </button>
-          )}
+              <path
+                d='M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z'
+                fill='currentColor'
+              />
+            </svg>
+          </button>
 
           {/* 中央标题及集数信息 */}
           <div
@@ -1114,7 +1102,13 @@ function PlayPageClient() {
             </div>
 
             {totalEpisodes > 1 && (
-              <div className='text-gray-300 text-sm mt-0.5'>
+              <div
+                className='text-gray-300 text-sm mt-0.5 cursor-pointer'
+                onClick={() => {
+                  setShowEpisodePanel(true);
+                  playerContainerRef.current?.focus();
+                }}
+              >
                 第 {currentEpisodeIndex + 1} 集 / 共 {totalEpisodes} 集
               </div>
             )}
@@ -1343,7 +1337,6 @@ function PlayPageClient() {
           sourceName={detail?.source_name || ''}
           onToggleFavorite={handleToggleFavorite}
           onOpenSourcePanel={handleSourcePanelOpen}
-          isFullscreen={isFullscreen}
         />
         <DefaultVideoLayout
           icons={defaultLayoutIcons}
@@ -1377,22 +1370,7 @@ function PlayPageClient() {
               ) : null,
             beforeFullscreenButton: (
               <>
-                {totalEpisodes > 1 && (
-                  <button
-                    className='vds-button mr-2'
-                    onClick={() => {
-                      setShowEpisodePanel(true);
-                      playerContainerRef.current?.focus();
-                    }}
-                  >
-                    选集
-                  </button>
-                )}
                 <PlaybackRateButton playerRef={playerRef} />
-                {/* 自定义 AirPlay 按钮 */}
-                <AirPlayButton className='vds-button'>
-                  <AirPlayIcon className='vds-icon' />
-                </AirPlayButton>
                 <button
                   className='vds-button'
                   aria-label={blockAdEnabled ? '关闭去广告' : '开启去广告'}
@@ -1409,6 +1387,10 @@ function PlayPageClient() {
                 >
                   <AdBlockIcon enabled={blockAdEnabled} />
                 </button>
+                {/* 自定义 AirPlay 按钮 */}
+                <AirPlayButton className='vds-button'>
+                  <AirPlayIcon className='vds-icon' />
+                </AirPlayButton>
               </>
             ),
           }}
