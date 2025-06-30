@@ -1,6 +1,9 @@
+'use client';
+
+import { useSidebar } from '@/components/Sidebar';
+
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
-import { useSidebar } from './Sidebar';
 import Sidebar from './Sidebar';
 import { ThemeToggle } from './ThemeToggle';
 

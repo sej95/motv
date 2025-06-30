@@ -31,6 +31,7 @@ async function searchFromApi(
     const apiUrl =
       apiBaseUrl + API_CONFIG.search.path + encodeURIComponent(query);
     const apiName = apiSite.name;
+    const cacheTime = getCacheTime();
 
     // 添加超时处理
     const controller = new AbortController();
@@ -39,6 +40,7 @@ async function searchFromApi(
     const response = await fetch(apiUrl, {
       headers: API_CONFIG.search.headers,
       signal: controller.signal,
+      next: { revalidate: cacheTime },
     });
 
     clearTimeout(timeoutId);
@@ -122,6 +124,7 @@ async function searchFromApi(
             const pageResponse = await fetch(pageUrl, {
               headers: API_CONFIG.search.headers,
               signal: pageController.signal,
+              next: { revalidate: cacheTime },
             });
 
             clearTimeout(pageTimeoutId);

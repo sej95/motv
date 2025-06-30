@@ -74,7 +74,7 @@ const DemoCard = ({ title, poster, rate }: DemoCardProps) => {
           fill
           className='object-cover'
           referrerPolicy='no-referrer'
-          unoptimized
+          sizes='(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 10vw'
         />
         {/* 评分徽章 */}
         {rate && (

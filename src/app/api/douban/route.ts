@@ -15,6 +15,7 @@ async function fetchDoubanData(url: string): Promise<DoubanApiResponse> {
   // 添加超时控制
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+  const cacheTime = getCacheTime();
 
   // 设置请求选项，包括信号和头部
   const fetchOptions = {
@@ -25,6 +26,7 @@ async function fetchDoubanData(url: string): Promise<DoubanApiResponse> {
       Referer: 'https://movie.douban.com/',
       Accept: 'application/json, text/plain, */*',
     },
+    next: { revalidate: cacheTime },
   };
 
   try {
@@ -122,6 +124,7 @@ export async function GET(request: Request) {
 
 function handleTop250(pageStart: number) {
   const target = `https://movie.douban.com/top250?start=${pageStart}&filter=`;
+  const cacheTime = getCacheTime();
 
   // 直接使用 fetch 获取 HTML 页面
   const controller = new AbortController();
@@ -136,6 +139,7 @@ function handleTop250(pageStart: number) {
       Accept:
         'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     },
+    next: { revalidate: cacheTime },
   };
 
   return fetch(target, fetchOptions)
@@ -176,7 +180,6 @@ function handleTop250(pageStart: number) {
         list: movies,
       };
 
-      const cacheTime = getCacheTime();
       return NextResponse.json(apiResponse, {
         headers: {
           'Cache-Control': `public, max-age=${cacheTime}`,

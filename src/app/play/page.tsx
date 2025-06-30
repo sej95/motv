@@ -33,7 +33,10 @@ import {
   savePlayRecord,
   toggleFavorite,
 } from '@/lib/db.client';
-import { type VideoDetail, fetchVideoDetail } from '@/lib/fetchVideoDetail';
+import {
+  type VideoDetail,
+  fetchVideoDetail,
+} from '@/lib/fetchVideoDetail.client';
 import { SearchResult } from '@/lib/types';
 
 // 扩展 HTMLVideoElement 类型以支持 hls 属性
@@ -212,8 +215,6 @@ function PlayPageClient() {
         const detailData = await fetchVideoDetail({
           source: currentSource,
           id: currentId,
-          fallbackTitle: videoTitle,
-          fallbackYear: videoYear,
         });
 
         // 更新状态保存详情
@@ -537,18 +538,16 @@ function PlayPageClient() {
       }
 
       // 获取新源的详情
-      const newDetail = await fetchVideoDetail({
+      const detailData = await fetchVideoDetail({
         source: newSource,
         id: newId,
-        fallbackTitle: newTitle,
-        fallbackYear: videoYear,
       });
 
       // 尝试跳转到当前正在播放的集数
       let targetIndex = currentEpisodeIndex;
 
       // 如果当前集数超出新源的范围，则跳转到第一集
-      if (!newDetail.episodes || targetIndex >= newDetail.episodes.length) {
+      if (!detailData.episodes || targetIndex >= detailData.episodes.length) {
         targetIndex = 0;
       }
 
@@ -569,11 +568,11 @@ function PlayPageClient() {
       // 关闭换源面板
       setShowSourcePanel(false);
 
-      setVideoTitle(newDetail.title || newTitle);
-      setVideoCover(newDetail.poster);
+      setVideoTitle(detailData.title || newTitle);
+      setVideoCover(detailData.poster);
       setCurrentSource(newSource);
       setCurrentId(newId);
-      setDetail(newDetail);
+      setDetail(detailData);
       setCurrentEpisodeIndex(targetIndex);
     } catch (err) {
       setError(err instanceof Error ? err.message : '换源失败');

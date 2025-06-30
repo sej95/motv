@@ -155,13 +155,7 @@ export default function VideoCard({
       <div className='group relative w-full rounded-lg bg-transparent shadow-none flex flex-col'>
         {/* 海报图片 - 2:3 比例 */}
         <div className='relative aspect-[2/3] w-full overflow-hidden rounded-md'>
-          <Image
-            src={poster}
-            alt={title}
-            fill
-            className='object-cover'
-            unoptimized
-          />
+          <Image src={poster} alt={title} fill className='object-cover' />
 
           {/* Hover 效果 */}
           <div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center group pointer-events-none'>
