@@ -167,11 +167,11 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
   ];
 
   const { siteName } = useSite();
-  if (siteName !== 'TuolingTV') {
+  if (siteName !== 'MoonTV') {
     menuItems.push({
       icon: Github,
-      label: 'TuolingTV',
-      href: 'https://github.com/TLS-802/TuolingTV',
+      label: 'MoonTV',
+      href: 'https://github.com/senshinya/MoonTV',
     });
   }
 
