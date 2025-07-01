@@ -65,11 +65,11 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
   ];
 
   const { siteName } = useSite();
-  if (siteName !== 'TuolingTV') {
+  if (siteName !== 'MoonTV') {
     navItems.push({
       icon: Github,
-      label: 'TuolingTV',
-      href: 'https://github.com/TLS-802/TuolingTV',
+      label: 'MoonTV',
+      href: 'https://github.com/senshinya/MoonTV',
     });
   }
 
