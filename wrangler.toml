@@ -1,4 +1,4 @@
-name = "moontv"
+name = "tuolingtv"
 compatibility_date = "2025-06-28"
 
 # 指定 Pages 产物目录，供 `wrangler pages dev` 本地预览使用
