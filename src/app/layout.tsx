@@ -4,12 +4,13 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 
 import AuthProvider from '../components/AuthProvider';
+import { SiteProvider } from '../components/SiteProvider';
 import { ThemeProvider } from '../components/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TuolingTV',
+  title: process.env.SITE_NAME ||'TuolingTV',
   description: '影视聚合',
   manifest: '/manifest.json',
 };
@@ -27,6 +28,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const siteName = process.env.SITE_NAME || 'MoonTV';
+  const announcement =
+    process.env.ANNOUNCEMENT ||
+    '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。';
+
   return (
     <html lang='zh-CN' suppressHydrationWarning>
       <body
@@ -38,7 +44,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>{children}</AuthProvider>
+          <SiteProvider siteName={siteName} announcement={announcement}>
+            <AuthProvider>{children}</AuthProvider>
+          </SiteProvider>
         </ThemeProvider>
       </body>
     </html>
