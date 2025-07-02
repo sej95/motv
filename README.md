@@ -165,9 +165,9 @@ TuolingTV 支持标准的苹果 CMS V10 API 格式。
 
 ## 致谢
 
-- [ts-nextjs-tailwind-starter](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter) — 项目最初基于该脚手架。
-- [LibreTV](https://github.com/LibreSpark/LibreTV) 。
+- [ts-nextjs-tailwind-starter](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter)
+- [LibreTV](https://github.com/LibreSpark/LibreTV) 
 - [MoonTV](https://github.com/senshinya/MoonTV)
-- [VidStack](https://vidstack.io/) — 提供强大的网页视频播放器。
-- [HLS.js](https://github.com/video-dev/hls.js) — 实现 HLS 流媒体在浏览器中的播放支持。
+- [VidStack](https://vidstack.io/)
+- [HLS.js](https://github.com/video-dev/hls.js)
 - 感谢所有提供免费影视接口的站点。
