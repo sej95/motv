@@ -193,9 +193,11 @@ function HomeClient() {
                           className='min-w-[96px] w-24 sm:min-w-[180px] sm:w-44'
                         >
                           <DemoCard
+                            id={movie.id}
                             title={movie.title}
                             poster={movie.poster}
                             rate={movie.rate}
+                            type='movie'
                           />
                         </div>
                       ))}
@@ -237,9 +239,11 @@ function HomeClient() {
                           className='min-w-[96px] w-24 sm:min-w-[180px] sm:w-44'
                         >
                           <DemoCard
+                            id={show.id}
                             title={show.title}
                             poster={show.poster}
                             rate={show.rate}
+                            type='tv'
                           />
                         </div>
                       ))}
