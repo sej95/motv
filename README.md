@@ -1,5 +1,3 @@
-# TuolingTV
-
 <div align="center">
   <img src="public/logo.png" alt="TuolingTV Logo" width="120">
 </div>
