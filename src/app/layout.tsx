@@ -10,7 +10,7 @@ import { ThemeProvider } from '../components/ThemeProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: process.env.SITE_NAME || 'MoonTV',
+  title: process.env.SITE_NAME || 'WenXiTV',
   description: '影视聚合',
   manifest: '/manifest.json',
 };
