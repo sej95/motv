@@ -52,7 +52,7 @@
 | 语言      | TypeScript 4                                                                      |
 | 播放器    | [VidStack](https://vidstack.io/) · [HLS.js](https://github.com/video-dev/hls.js/) |
 | 代码质量  | ESLint · Prettier · Jest                                                          |
-| 部署      | Docker · Vercel                                                                   |
+| 部署      |  Vercel ·Cloudflare                                                                   |
 
 ## 部署
 
