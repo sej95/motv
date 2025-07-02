@@ -28,10 +28,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const siteName = process.env.SITE_NAME || 'MoonTV';
+  const siteName = process.env.SITE_NAME || 'WenXiTV';
   const announcement =
     process.env.ANNOUNCEMENT ||
-    '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。';
+    '本网站仅提供影视信息搜索服务，所有内容均来源于第三方网站。本站不存储任何视频资源，也不对任何内容的准确性、合法性或完整性负责。';
 
   return (
     <html lang='zh-CN' suppressHydrationWarning>
