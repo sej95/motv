@@ -56,7 +56,7 @@
 
 ## 部署
 
-本项目**支持 Vercel、Docker 和 Cloudflare** 部署。
+本项目**支持 Vercel 和 Cloudflare** 部署。
 
 ### Vercel 部署
 
@@ -81,49 +81,6 @@
 6. （强烈建议）首次部署完成后进入设置，新增 PASSWORD 密钥（变量和机密下），而后重试部署。
 7. 如需自定义 `config.json`，请直接修改 Fork 后仓库中该文件。
 8. 每次 Push 到 `main` 分支将自动触发重新构建。
-
-### Docker 部署
-
-> 适用于自建服务器 / NAS / 群晖等场景。
-
-#### 1. 直接运行（最简单）
-
-```bash
-# 拉取预构建镜像
-docker pull ghcr.io/tls-802/tuolingtv:latest
-
-# 运行容器
-# -d: 后台运行  -p: 映射端口 3000 -> 3000
-docker run -d --name tuolingtv -p 3000:3000 ghcr.io/tls-802/tuolingtv:latest
-```
-
-访问 `http://服务器 IP:3000` 即可。
-
-#### 2. docker-compose 示例
-
-```yaml
-version: '3.9'
-services:
-  tuolingtv:
-    image: ghcr.io/tls-802/tuolingtv:latest
-    container_name: tuolingtv
-    restart: unless-stopped
-    ports:
-      - '3000:3000'
-    environment:
-      - PASSWORD=your_password
-    # 如需自定义配置，可挂载文件
-    # volumes:
-    #   - ./config.json:/app/config.json:ro
-```
-
-执行：
-
-```bash
-docker compose up -d
-```
-
-随后同样访问 `http://服务器 IP:3000`。
 
 ### **请勿使用 Pull Bot 自动同步**
 
