@@ -3,7 +3,7 @@
 
 import { Search, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 
 import {
   addSearchHistory,
@@ -27,7 +27,6 @@ function SearchPageClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // 视图模式：聚合(agg) 或 全部(all)，默认值由环境变量 NEXT_PUBLIC_AGGREGATE_SEARCH_RESULT 决定
   const [viewMode, setViewMode] = useState<'agg' | 'all'>(
@@ -41,18 +40,20 @@ function SearchPageClient() {
   const aggregatedResults = useMemo(() => {
     const map = new Map<string, SearchResult[]>();
     searchResults.forEach((item) => {
-      // 使用 title + year + id 作为键，若 year 不存在则使用 'unknown'
-      const key = `${item.title}-${item.year || 'unknown'}-${item.id}`;
+      // 使用 title + year + type 作为键，若 year 不存在则使用 'unknown'
+      const key = `${item.title}-${item.year || 'unknown'}-${
+        item.episodes.length === 1 ? 'movie' : 'tv'
+      }`;
       const arr = map.get(key) || [];
       arr.push(item);
       map.set(key, arr);
     });
-    return Array.from(map.values());
+    return map;
   }, [searchResults]);
 
   useEffect(() => {
     // 无搜索参数时聚焦搜索框
-    !searchParams.get('q') && searchInputRef.current?.focus();
+    !searchParams.get('q') && document.getElementById('searchInput')?.focus();
     getSearchHistory().then(setSearchHistory);
   }, []);
 
@@ -116,7 +117,7 @@ function SearchPageClient() {
             <div className='relative'>
               <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500' />
               <input
-                ref={searchInputRef}
+                id='searchInput'
                 type='text'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,20 +165,19 @@ function SearchPageClient() {
                 className='justify-start grid grid-cols-3 gap-x-2 gap-y-14 sm:gap-y-20 px-0 sm:px-2 sm:grid-cols-[repeat(auto-fill,_minmax(11rem,_1fr))] sm:gap-x-8'
               >
                 {viewMode === 'agg'
-                  ? aggregatedResults.map((group) => {
-                      const key = `${group[0].title}-${
-                        group[0].year || 'unknown'
-                      }-${group[0].id}`;
-                      return (
-                        <div key={`agg-${key}`} className='w-full'>
-                          <AggregateCard
-                            items={group}
-                            query={searchQuery}
-                            year={group[0].year}
-                          />
-                        </div>
-                      );
-                    })
+                  ? Array.from(aggregatedResults.entries()).map(
+                      ([mapKey, group]) => {
+                        return (
+                          <div key={`agg-${mapKey}`} className='w-full'>
+                            <AggregateCard
+                              items={group}
+                              query={searchQuery}
+                              year={group[0].year}
+                            />
+                          </div>
+                        );
+                      }
+                    )
                   : searchResults.map((item) => (
                       <div
                         key={`all-${item.source}-${item.id}`}
