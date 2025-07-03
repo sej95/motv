@@ -171,7 +171,6 @@ export default function VideoCard({
             src={poster}
             alt={title}
             fill
-            loading='lazy'
             className={`object-cover transition-transform duration-500 cubic-bezier(0.4,0,0.2,1) group-hover:scale-110
                       ${
                         isLoaded

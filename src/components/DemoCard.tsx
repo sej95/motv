@@ -72,7 +72,6 @@ const DemoCard = ({ id, title, poster, rate, type }: DemoCardProps) => {
           alt={title}
           fill
           ref={imgRef}
-          loading='lazy'
           className={`object-cover transition-transform duration-500 cubic-bezier(0.4,0,0.2,1) group-hover:scale-110
                       ${
                         isLoaded
