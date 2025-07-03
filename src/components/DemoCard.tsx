@@ -58,7 +58,7 @@ const DemoCard = ({ id, title, poster, rate, type }: DemoCardProps) => {
       onClick={handleClick}
     >
       {/* 海报图片区域 */}
-      <div className='relative aspect-[2/3] w-full overflow-hidden rounded-md group-hover:scale-[1.02] transition-all duration-400 cubic-bezier(0.4, 0, 0.2, 1)'>
+      <div className='relative aspect-[2/3] w-full overflow-hidden rounded-md group-hover:scale-[1.02] transition-all duration-400 cubic-bezier(0.4, 0, 0.2, 1) safari-fix'>
         <Image
           src={poster}
           alt={title}

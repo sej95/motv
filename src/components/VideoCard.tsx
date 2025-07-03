@@ -111,12 +111,6 @@ export default function VideoCard({
     e.preventDefault();
     e.stopPropagation();
 
-    // 如果是从收藏夹移除，立即更新UI
-    if (favorited && from === 'favorites') {
-      setIsDeleting(true);
-      onDelete?.();
-    }
-
     try {
       const newState = await toggleFavorite(source, id, {
         title,
@@ -237,13 +231,22 @@ export default function VideoCard({
             </div>
           </div>
 
-          {/* 集数矩形展示框 - 增加条件判断：仅当有多个集数且已播放时显示 */}
+          {/* 继续观看 - 集数矩形展示框 */}
           {episodes && episodes > 1 && currentEpisode && (
             <div className='absolute top-2 right-2 min-w-[1.875rem] h-5 sm:h-7 sm:min-w-[2.5rem] bg-green-500/90 dark:bg-green-600/90 rounded-md flex items-center justify-center px-2 shadow-md text-[0.55rem] sm:text-xs'>
               <span className='text-white font-bold leading-none'>
                 {currentEpisode}
+                <span className='mx-1 text-white/80'>/</span>
               </span>
-              <span className='mx-1 text-white/80'>/</span>
+              <span className='text-white font-bold leading-none'>
+                {episodes}
+              </span>
+            </div>
+          )}
+
+          {/* 搜索非聚合 - 集数圆形展示框 */}
+          {from === 'search' && (
+            <div className='absolute top-2 right-2 w-4 h-4 sm:w-7 sm:h-7 rounded-full bg-green-500/90 dark:bg-green-600/90 flex items-center justify-center shadow-md text-[0.55rem] sm:text-xs'>
               <span className='text-white font-bold leading-none'>
                 {episodes}
               </span>
