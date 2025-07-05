@@ -6,14 +6,14 @@
       "name": "黑木耳",
       "detail": "https://heimuer.tv"
     },
+    "ruyi": {
+      "api": "https://cj.rycjapi.com/api.php/provide/vod",
+      "name": "如意资源"
+    },
     "dyttzy": {
       "api": "http://caiji.dyttzyapi.com/api.php/provide/vod",
       "name": "电影天堂资源",
       "detail": "http://caiji.dyttzyapi.com"
-    },
-    "ruyi": {
-      "api": "https://cj.rycjapi.com/api.php/provide/vod",
-      "name": "如意资源"
     },
     "bfzy": {
       "api": "https://bfzyapi.com/api.php/provide/vod",
