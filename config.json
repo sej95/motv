@@ -78,12 +78,56 @@
       "name": "iKun资源"
     },
     "lzi": {
-      "api": "https://cj.lziapi.com/api.php/provide/vod",
+      "api": "http://lzizy.net/api.php/provide/vod",
       "name": "量子资源"
     },
     "hhzy": {
       "api": "https://hhzyapi.com/api.php/provide/vod",
       "name": "豪华资源"
+    },
+    "ikunzy": {
+      "api": "https://www.ikunzy.com/api.php/provide/vod",
+      "name": "爱坤资源"
+    },
+    "huya": {
+      "api": "http://huyazy.net/api.php/provide/vod",
+      "name": "虎牙资源"
+    },
+    "huawei8": {
+      "api": "https://huawei8.live/api.php/provide/vod",
+      "name": "华为吧资源"	  
+    },
+    "mtzy": {
+      "api": "https://mtzy.me/api.php/provide/vod",
+      "name": "茅台资源"
+    },
+    "suoni": {
+      "api": "https://suonizy.net/api.php/provide/vod",
+      "name": "索尼资源"  
+    },
+    "kuaiche": {
+      "api": "https://kuaichezy.com/api.php/provide/vod",
+      "name": "快车资源"
+    },
+    "inying": {
+      "api": "https://jinyingzy.com/api.php/provide/vod",
+      "name": "金鹰资源"
+    },
+    "okcdn": {
+      "api": "https://vs.okcdn100.top/api.php/provide/vod",
+      "name": "小绵羊资源"
+    },
+    "qilinzy": {
+      "api": "https://www.qilinzyz.com/api.php/provide/vod",
+      "name": "麒麟资源"
+    },
+    "fczy": {
+      "api": "https://fczy908.com/api.php/provide/vod",
+      "name": "蜂巢资源"
+    },
+    "suboziyuan": {
+      "api": "https://www.suboziyuan.net/api.php/provide/vod",
+      "name": "速播资源"	  
     }    
   }
 }
