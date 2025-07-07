@@ -76,6 +76,18 @@
     "ikun": {
       "api": "https://ikunzyapi.com/api.php/provide/vod",
       "name": "iKun资源"
+    }，
+     "豪华": {
+      "api": "https://hhzyapi.com/api.php/provide/vod",
+      "name": "豪华资源"
+    }
+     "淘片": {
+      "api": "https://taopianapi.com/cjapi/sda/vod",
+      "name": "淘片资源"
+    }
+    "金鹰": {
+      "api": "https://jyzyapi.com/provide/vod",
+      "name": "金鹰资源"
     }
   }
 }
