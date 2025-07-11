@@ -12,6 +12,7 @@ interface VideoCardProps {
   id?: string;
   source?: string;
   title?: string;
+  query?: string;
   poster?: string;
   episodes?: number;
   source_name?: string;
