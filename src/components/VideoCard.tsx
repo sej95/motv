@@ -234,11 +234,11 @@ export default function VideoCard({
 
   return (
     <div
-      className='group relative w-full rounded-lg bg-transparent transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] cursor-pointer'
+      className='group relative w-full rounded-lg bg-transparent transition-all duration-300ms hover:-translate-y-1 hover:scale-[1.02] cursor-pointer'
       onClick={handleClick}
     >
       {/* 海报容器 */}
-      <div className='relative aspect-[2/3] overflow-hidden rounded-lg transition-all duration-300'>
+      <div className='relative aspect-[2/3] overflow-hidden rounded-lg transition-all duration-300ms'>
         {/* 图片占位符 */}
         {!isLoaded && <ImagePlaceholder aspectRatio='aspect-[2/3]' />}
 
@@ -247,7 +247,7 @@ export default function VideoCard({
           src={actualPoster}
           alt={actualTitle}
           fill
-          className={`object-cover transition-all duration-700 ease-out ${
+          className={`object-cover transition-all duration-300ms ${
             isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95 blur-sm'
           } group-hover:scale-105`}
           onLoadingComplete={() => setIsLoaded(true)}
@@ -256,24 +256,24 @@ export default function VideoCard({
         />
 
         {/* 悬浮交互层 */}
-        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center'>
+        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300ms flex items-center justify-center'>
           {/* 播放按钮 */}
           {config.showPlayButton && (
             <PlayCircleIcon
               size={52}
               strokeWidth={1}
-              className='text-white transition-all duration-300 transform hover:scale-110 hover:fill-green-500 rounded-full opacity-80 hover:opacity-100'
+              className='text-white transition-all duration-300ms transform hover:scale-110 hover:fill-green-500 rounded-full opacity-80 hover:opacity-100'
             />
           )}
 
           {/* 功能按钮组 */}
           {(config.showHeart || config.showCheckCircle) && (
-            <div className='absolute bottom-3 right-3 flex items-center gap-3 transform opacity-0 translate-y-2 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 ease-out'>
+            <div className='absolute bottom-3 right-3 flex items-center gap-3 transform opacity-0 translate-y-2 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300ms ease-out'>
               {config.showCheckCircle && (
                 <CheckCircle
                   onClick={handleDeleteRecord}
                   size={20}
-                  className='rounded-full transition-all duration-300 transform hover:scale-110 text-white hover:stroke-green-500'
+                  className='rounded-full transition-all duration-300ms transform hover:scale-110 text-white hover:stroke-green-500'
                   aria-label='标记为已看'
                 />
               )}
@@ -282,7 +282,7 @@ export default function VideoCard({
                 <Heart
                   onClick={handleToggleFavorite}
                   size={20}
-                  className={`rounded-full transition-all duration-300 transform hover:scale-110 ${
+                  className={`rounded-full transition-all duration-300ms transform hover:scale-110 ${
                     favorited
                       ? 'fill-red-600 stroke-red-600'
                       : 'fill-transparent stroke-white hover:stroke-red-400'
@@ -296,7 +296,7 @@ export default function VideoCard({
 
         {/* 评分徽章 */}
         {config.showRating && rate && (
-          <div className='absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold w-8 h-8 rounded-full flex items-center justify-center shadow-md transform transition-transform duration-300 group-hover:scale-110'>
+          <div className='absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold p-1 rounded-full shadow group-hover:scale-110 transition-all duration-300ms min-w-[1.5rem] text-center'>
             {rate}
           </div>
         )}
@@ -305,7 +305,7 @@ export default function VideoCard({
         {['playrecord', 'favorite', 'search'].includes(from) &&
           actualEpisodes &&
           actualEpisodes > 1 && (
-            <div className='absolute top-2 right-2 bg-green-500 text-white text-xs font-semibold rounded-md px-2 py-0.5 shadow-md transform transition-transform duration-300 group-hover:scale-105'>
+            <div className='absolute top-2 right-2 bg-green-500 text-white text-xs p-1 rounded-md shadow transform transition-all duration-300ms group-hover:scale-110 min-w-[1.5rem] text-center'>
               {currentEpisode
                 ? `${currentEpisode}/${actualEpisodes}`
                 : actualEpisodes}
@@ -319,10 +319,10 @@ export default function VideoCard({
             target='_blank'
             rel='noopener noreferrer'
             onClick={(e) => e.stopPropagation()}
-            className='absolute top-2 left-2 opacity-0 -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300'
+            className='absolute top-2 left-2 opacity-0 -translate-x-2 group-hover:translate-x-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300ms'
           >
-            <div className='w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-md hover:bg-green-600 transition-colors duration-200 transform hover:scale-105'>
-              <Link size={16} className='text-white' />
+            <div className='bg-green-500 text-white text-xs font-bold p-1 rounded-full flex-center shadow-md hover:bg-green-600 hover:scale-110 transition-all duration-300ms'>
+              <Link size={16} />
             </div>
           </a>
         )}
@@ -332,21 +332,21 @@ export default function VideoCard({
       {config.showProgress && (
         <div className='mt-1 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden'>
           <div
-            className='h-full bg-green-500 rounded-full transition-all duration-500 ease-out'
+            className='h-full bg-green-500 rounded-full transition-all duration-300ms'
             style={{ width: `${progress}%` }}
           />
         </div>
       )}
 
       {/* 标题 */}
-      <span className='mt-2 block text-center text-sm font-semibold truncate text-gray-900 dark:text-gray-100 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400'>
+      <span className='mt-2 block text-center text-sm font-semibold truncate text-gray-900 dark:text-gray-100 transition-colors duration-300ms group-hover:text-green-600 dark:group-hover:text-green-400'>
         {actualTitle}
       </span>
 
       {/* 来源名称 */}
       {config.showSourceName && source_name && (
-        <span className='block text-center text-xs text-gray-500 dark:text-gray-400 mt-1 transform transition-all duration-300 group-hover:scale-105 group-hover:text-green-500 dark:group-hover:text-green-500'>
-          <span className='inline-block border border-gray-500/60 dark:border-gray-400/60 px-2 py-0.5 rounded transition-all duration-300 group-hover:border-green-500/60'>
+        <span className='block text-center text-xs text-gray-500 dark:text-gray-400 mt-1 transition-all duration-300ms group-hover:text-green-500 dark:group-hover:text-green-500 group-hover:scale-105'>
+          <span className='inline-block border rounded px-2 py-0.5 border-gray-500/60 dark:border-gray-400/60 transition-all duration-300ms group-hover:border-green-500/60'>
             {source_name}
           </span>
         </span>
