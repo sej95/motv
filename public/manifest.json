@@ -1,6 +1,6 @@
 {
-  "name": "MoonTV",
-  "short_name": "MoonTV",
+  "name": "夸父影院",
+  "short_name": "夸父影院",
   "description": "影视聚合",
   "start_url": "/",
   "scope": "/",
