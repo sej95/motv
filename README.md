@@ -1,7 +1,7 @@
 # TuolingTV
 
 <div align="center">
-  <img src="public/logo.png" alt="LibreTV Logo" width="120">
+  <img src="public/logo.png" alt="TuolingTV Logo" width="120">
 </div>
 
 > 🎬 **TuolingTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 14** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、本地/云端存储，让你可以随时随地畅享海量免费影视内容。
@@ -112,9 +112,9 @@ docker run -d --name moontv -p 3000:3000 ghcr.io/senshinya/moontv:latest
 
 ```yaml
 services:
-  moontv:
-    image: ghcr.io/senshinya/moontv:latest
-    container_name: moontv
+  TuolingTV:
+    image: ghcr.io/senshinya/TuolingTV:latest
+    container_name: TuolingTV
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -129,9 +129,9 @@ services:
 
 ```yaml
 services:
-  moontv-core:
-    image: ghcr.io/senshinya/moontv:latest
-    container_name: moontv
+  TuolingTV-core:
+    image: ghcr.io/senshinya/TuolingTV:latest
+    container_name: TuolingTV
     restart: unless-stopped
     ports:
       - '3000:3000'
@@ -139,26 +139,26 @@ services:
       - USERNAME=admin
       - PASSWORD=admin_password
       - NEXT_PUBLIC_STORAGE_TYPE=redis
-      - REDIS_URL=redis://moontv-redis:6379
+      - REDIS_URL=redis://TuolingTV-redis:6379
       - NEXT_PUBLIC_ENABLE_REGISTER=true
     networks:
-      - moontv-network
+      - TuolingTV-network
     depends_on:
-      - moontv-redis
+      - TuolingTV-redis
     # 如需自定义配置，可挂载文件
     # volumes:
     #   - ./config.json:/app/config.json:ro
-  moontv-redis:
+  TuolingTV-redis:
     image: redis
-    container_name: moontv-redis
+    container_name: TuolingTV-redis
     restart: unless-stopped
     networks:
-      - moontv-network
+      - TuolingTV-network
     # 如需持久化
     # volumes:
     #   - ./data:/data
 networks:
-  moontv-network:
+  TuolingTV-network:
     driver: bridge
 ```
 
