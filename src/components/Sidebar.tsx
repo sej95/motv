@@ -171,7 +171,6 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
     menuItems.push({
       icon: Github,
       label: 'MoonTV',
-      href: 'https://github.com/senshinya/MoonTV',
     });
   }
 
