@@ -39,3 +39,5 @@ next-env.d.ts
 # next-sitemap
 sitemap.xml
 sitemap-*.xml
+
+.next/cache
