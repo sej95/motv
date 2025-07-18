@@ -114,7 +114,7 @@ docker pull ghcr.io/senshinya/moontv:latest
 docker run -d --name moontv -p 3000:3000 ghcr.io/senshinya/moontv:latest
 ```
 
-访问 `http://服务器 IP:3000` 即可。（需自行到服务器控制台放通 `3000` 端口）
+访问 `http://服务器 IP:3000` 即可。（需自行到服务器安全组内放通 `3000` 端口，[阿里云](https://help.aliyun.com/zh/ecs/user-guide/overview-44?spm=a2c4g.11186623.help-menu-25365.d_4_6_0.3e7f2c3bofXlSJ&scm=20140722.H_25387._.OR_help-T_cn~zh-V_1)，[腾讯云](https://cloud.tencent.com/document/product/215/117125)，[火山引擎](https://www.volcengine.com/docs/6401/68892)，[华为云](https://support.huaweicloud.com/usermanual-ecs/zh-cn_topic_0140323157.html)，[京东云](https://docs.jdcloud.com/cn/yunjian/opencloud-security-%20group)，[天翼云](https://www.ctyun.cn/document/10011497/10137326)）
 
 ## Docker Compose 最佳实践
 
